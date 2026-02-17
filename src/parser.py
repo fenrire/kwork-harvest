@@ -59,12 +59,9 @@ def _parse_time(period: str | None, time_str: str) -> str:
     return f"{hour:02d}:{minute}"
 
 
-def parse_file(file_path: Path) -> Channel:
-    """카카오워크 내보내기 텍스트 파일 하나를 파싱하여 Channel 객체로 반환"""
-    text = file_path.read_text(encoding="utf-8")
-    lines = text.splitlines()
-
-    channel_name = file_path.stem  # 기본값: 파일명
+def _parse_lines(lines: list[str], default_channel: str) -> Channel:
+    """텍스트 줄 목록을 파싱하여 Channel 객체로 반환"""
+    channel_name = default_channel
     messages: list[Message] = []
     current_date: str | None = None
 
@@ -147,6 +144,20 @@ def parse_file(file_path: Path) -> Channel:
             messages[-1].content += "\n" + line
 
     return Channel(name=channel_name, messages=messages)
+
+
+def parse_file(file_path: Path) -> Channel:
+    """카카오워크 내보내기 텍스트 파일 하나를 파싱하여 Channel 객체로 반환"""
+    text = file_path.read_text(encoding="utf-8")
+    return _parse_lines(text.splitlines(), default_channel=file_path.stem)
+
+
+def parse_text(text: str, channel_name: str, author_filter: str | None = None) -> Channel:
+    """텍스트 문자열을 파싱하여 Channel 객체로 반환 (붙여넣기 모드용)"""
+    channel = _parse_lines(text.splitlines(), default_channel=channel_name)
+    if author_filter:
+        channel = channel.filter_by_author(author_filter)
+    return channel
 
 
 def parse_directory(directory: Path, author_filter: str | None = None) -> list[Channel]:
