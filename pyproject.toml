@@ -1,0 +1,12 @@
+[project]
+name = "kwork-harvest"
+version = "0.1.0"
+description = "카카오워크 내보내기 파일을 파싱하여 노션에 채널/주제별로 정리하는 도구"
+requires-python = ">=3.10"
+dependencies = [
+    "httpx>=0.24.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+kwork-harvest = "main:main"
